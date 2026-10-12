@@ -4,4 +4,4 @@
 
 ### Chapter 2
 
-[1.1](https://github.com/iam-animasaun/KubernetesSubmission/tree/main/log-output)
+[1.1](https://github.com/iam-animasaun/KubernetesSubmission/commits/1.1)
