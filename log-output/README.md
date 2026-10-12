@@ -1,2 +1,2 @@
 # Log output app
-Deploy with `kubectl apply -a manifests`
+Deploy with `kubectl apply -f manifests`
