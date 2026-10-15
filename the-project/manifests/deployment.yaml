@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: todo-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: todo-app
@@ -14,8 +14,14 @@ spec:
     spec:
       containers:
         - name: todo-app
-          image: todo-app:1.0
+          image: todo-app:2.0
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "3000"
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
