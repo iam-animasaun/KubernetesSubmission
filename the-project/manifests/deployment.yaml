@@ -18,10 +18,10 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
-              value: "3000"
+              value: "4000"
           ports:
-            - containerPort: 3000
+            - containerPort: 4000
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 3000
+              port: 4000
