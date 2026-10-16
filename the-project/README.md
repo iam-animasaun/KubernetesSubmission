@@ -5,6 +5,5 @@
     docker build -t todo-app:2.0 .
     k3d image import todo-app:2.0 -c k3s-default
     kubectl apply -f manifests/deployment.yaml
-    kubectl get nodes -o wide     # note a node's INTERNAL-IP
-    curl http://<node-ip>:30080
+    curl `http://localhost:8081`
 
