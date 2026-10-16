@@ -1,2 +1,5 @@
 # Log output app
-Deploy with `kubectl apply -f manifests`
+	
+	docker build -t log-output:1.5 .
+	k3d image import log-output:1.5 -c k3s-default
+	Deploy with `kubectl apply -f manifests`
