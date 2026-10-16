@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-app
+  name: todo-app-clusterip
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: todo-app
   ports:
-    - port: 80
+    - port: 2345
       targetPort: 4000
-      nodePort: 30080
