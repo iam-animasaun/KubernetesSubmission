@@ -12,9 +12,13 @@ spec:
       labels:
         app: pingpong
     spec:
+      volumes:
+        - name: shared-files
+          persistentVolumeClaim:
+            claimName: shared-pvc
       containers:
         - name: pingpong
-          image: pingpong:1.0
+          image: pingpong:1.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
