@@ -33,3 +33,18 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         body = f"{read_log_line()}\nPing / Pongs: {read_pongs()}".encode()
         self._send(200, body)
+
+    def _not_allowed(self) -> None:
+        self.send_response(405)
+        self.send_header("Allow", "GET")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    do_POST = do_PUT = do_PATCH = do_DELETE = _not_allowed
+
+
+
+if __name__ == "__main__":
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    print(f"Server started in port {PORT}", flush=True)
+    server.serve_forever()

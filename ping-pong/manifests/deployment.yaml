@@ -18,7 +18,7 @@ spec:
             claimName: shared-pvc
       containers:
         - name: pingpong
-          image: pingpong:1.1
+          image: ping-pong:1.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT

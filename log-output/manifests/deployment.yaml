@@ -20,9 +20,6 @@ spec:
         - name: log-writer
           image: log-writer:1.0
           imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: logs
-              mountPath: /usr/src/app/files
         - name: log-reader
           image: log-reader:1.1
           imagePullPolicy: IfNotPresent

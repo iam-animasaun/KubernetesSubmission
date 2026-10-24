@@ -18,4 +18,4 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - k3d-k3s-deafult-agent-0   # must match `kubectl get nodes`
+                - k3d-k3s-default-agent-0   # must match `kubectl get nodes`
