@@ -88,6 +88,23 @@ const page = `<!DOCTYPE html>
     <h1>Todo App</h1>
     <img src="/image" alt="Random picture">
     <p class="caption">DevOps with Kubernetes 2026</p>
+    <form onsubmit="return false">
+      <input id="todo" type="text" maxlength="140" placeholder="Enter a new todo (max 140 characters)" required>
+      <button type="submit">Send</button>
+    </form>
+    <span id="count">0/140</span>
+    <h2>Todos</h2>
+    <ul>
+${todos.map((t) => `      <li>${escapeHtml(t)}</li>`).join('\n')}
+    </ul>
+  </main>
+  <script>
+    var input = document.getElementById('todo');
+    var count = document.getElementById('count');
+    input.addEventListener('input', function () {
+      count.textContent = input.value.length + '/140';
+    });
+  </script>
 </body>
 </html>
 `;
@@ -133,3 +150,4 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, () => {
   console.log(`Server started in port ${port}`);
 });
+
