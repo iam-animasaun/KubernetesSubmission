@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: todo-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: todo-app
@@ -12,15 +12,26 @@ spec:
       labels:
         app: todo-app
     spec:
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: todo-app-cache
       containers:
         - name: todo-app
-          image: todo-app:2.0
+          image: todo-app:3.0
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "4000"
+            - name: CACHE_DIR
+              value: /data
+            - name: ENABLE_SHUTDOWN
+              value: "true"
           ports:
             - containerPort: 4000
+          volumeMounts:
+            - name: cache
+              mountPath: /data
           readinessProbe:
             httpGet:
               path: /healthz
