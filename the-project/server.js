@@ -12,6 +12,14 @@ fs.mkdirSync(cacheDir, { recursive: true });
 
 // --- Image cache -----------------------------------------------------------
 
+// Node hides the real reason for "fetch failed" in err.cause, so dig it out.
+function describe(err) {
+  const c = err.cause;
+  if (!c) return err.message;
+  const inner = c.errors ? c.errors.map((e) => e.code || e.message).join(', ') : c.code || c.message;
+  return `${err.message} (${inner})`;
+}
+
 let fetching = null;
 
 function fetchNewImage() {
@@ -40,12 +48,18 @@ async function getImage() {
     await fetchNewImage(); // nothing cached yet, so we have to wait
   } else if (Date.now() - stat.mtimeMs > MAX_AGE_MS) {
     // Too old: serve the old one this time, refresh for the next request.
-    fetchNewImage().catch((err) => console.error(err.message));
+    fetchNewImage().catch((err) => console.error(describe(err)));
   }
   return fs.readFileSync(imagePath);
 }
 
 // --- Page ------------------------------------------------------------------
+
+const todos = [
+  'Learn Kubernetes basics',
+  'Deploy application to cluster',
+  'Configure persistent volumes',
+];
 
 const escapeHtml = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -74,14 +88,6 @@ const page = `<!DOCTYPE html>
     <h1>Todo App</h1>
     <img src="/image" alt="Random picture">
     <p class="caption">DevOps with Kubernetes 2026</p>
-  </main>
-  <script>
-    var input = document.getElementById('todo');
-    var count = document.getElementById('count');
-    input.addEventListener('input', function () {
-      count.textContent = input.value.length + '/140';
-    });
-  </script>
 </body>
 </html>
 `;
@@ -102,7 +108,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'no-store' });
       return res.end(img);
     } catch (err) {
-      console.error(err.message);
+      console.error(describe(err));
       res.writeHead(502, { 'Content-Type': 'text/plain' });
       return res.end('Could not get an image\n');
     }
@@ -127,4 +133,3 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, () => {
   console.log(`Server started in port ${port}`);
 });
-

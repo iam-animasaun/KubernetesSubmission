@@ -18,13 +18,15 @@ spec:
             claimName: todo-app-cache
       containers:
         - name: todo-app
-          image: todo-app:3.0
+          image: todo-app:3.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "4000"
             - name: CACHE_DIR
               value: /data
+            - name: NODE_OPTIONS
+              value: "--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=5000"
             - name: ENABLE_SHUTDOWN
               value: "true"
           ports:
