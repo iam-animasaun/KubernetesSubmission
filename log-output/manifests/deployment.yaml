@@ -20,8 +20,11 @@ spec:
         - name: log-writer
           image: log-writer:1.0
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
         - name: log-reader
-          image: log-reader:1.1
+          image: log-reader:1.2
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT

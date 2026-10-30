@@ -12,7 +12,7 @@ spec:
               service:
                 name: log-output-svc     # <- your existing service name
                 port:
-                  number: 2345           # <- your existing service port
+                  number: 80           # <- your existing service port
           - path: /pingpong
             pathType: Prefix
             backend:

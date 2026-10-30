@@ -18,8 +18,11 @@ spec:
             claimName: shared-pvc
       containers:
         - name: pingpong
-          image: ping-pong:1.1
+          image: pingpong:1.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
               value: "3000"
+          volumeMounts:
+            - name: shared-files
+              mountPath: /usr/src/app/files
