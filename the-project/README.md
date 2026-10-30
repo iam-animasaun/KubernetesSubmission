@@ -2,8 +2,8 @@
 
 ## Build and load into k3d, then deploy:
 
-    docker build -t todo-app:2.0 .
-    k3d image import todo-app:2.0 -c k3s-default
+    docker build -t todo-app:3.1 .
+    k3d image import todo-app:3.1 -c k3s-default
     kubectl apply -f manifests/deployment.yaml
 
 ## Open the app through the Ingress (the host port mapped to the k3d load balancer's port 80).
