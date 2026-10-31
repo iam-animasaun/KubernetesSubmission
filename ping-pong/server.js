@@ -1,10 +1,6 @@
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 
 const port = process.env.PORT || 3000;
-const dir = '/usr/src/app/files';
-const file = path.join(dir, 'pingpong.txt');
 let counter = 0;
 
 http.createServer((req, res) => {
@@ -12,8 +8,9 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end(`pong ${counter}`);
     counter++;
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(file, String(counter));
+  } else if (req.method === 'GET' && req.url === '/pings') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(String(counter));
   } else {
     res.writeHead(404);
     res.end();
