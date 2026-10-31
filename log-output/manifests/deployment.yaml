@@ -23,7 +23,7 @@ spec:
             - name: shared-files
               mountPath: /usr/src/app/files
         - name: log-reader
-          image: log-reader:1.2
+          image: log-reader:1.3
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
