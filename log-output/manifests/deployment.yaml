@@ -14,8 +14,7 @@ spec:
     spec:
       volumes:
         - name: shared-files
-          persistentVolumeClaim:
-            claimName: shared-pvc
+          emptyDir: {}
       containers:
         - name: log-writer
           image: log-writer:1.0
@@ -29,6 +28,8 @@ spec:
           env:
             - name: PORT
               value: "3000"
+            - name: PINGPONG_URL
+              value: "http://pingpong-svc:2345/pings"
           ports:
             - containerPort: 3000
           volumeMounts:
