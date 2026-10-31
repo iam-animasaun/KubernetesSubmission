@@ -1,18 +1,20 @@
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import urllib.request
 
 PORT = int(os.environ.get("PORT", "3000"))
 FILE = os.path.join(os.environ.get("FILES_DIR", "/usr/src/app/files"), "log.txt")
 
 FILES_DIR = os.environ.get("FILES_DIR", "/usr/src/app/files")
-PONGS_FILE = os.path.join(FILES_DIR, "pingpong.txt")
+PINGPONG_URL = os.environ.get("PINGPONG_URL", "http://pingpong-svc:2345/pings")
+
 
 def read_pongs():
     try:
-        with open(PONGS_FILE) as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        return "0"
+        with urllib.request.urlopen(PINGPONG_URL, timeout=2) as r:
+            return r.read().decode().strip()
+    except Exception:
+        return "unavailable"
 
 def read_log_line():
     try:
