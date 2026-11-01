@@ -38,3 +38,5 @@
 
 [2.3](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.3)
 
+[2.4](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.4/the-project)
+
