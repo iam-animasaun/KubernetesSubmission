@@ -55,15 +55,6 @@ async function getImage() {
 
 // --- Page ------------------------------------------------------------------
 
-const todos = [
-  'Learn Kubernetes basics',
-  'Deploy application to cluster',
-  'Configure persistent volumes',
-];
-
-const escapeHtml = (s) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
 const page = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,6 +70,7 @@ const page = `<!DOCTYPE html>
     input { flex: 1; max-width: 22rem; padding: .5rem; border: 2px solid #4caf50; border-radius: 4px; font-size: 1rem; }
     button { background: #4caf50; color: #fff; border: 0; border-radius: 4px; padding: .5rem 1.25rem; font-size: 1rem; cursor: pointer; }
     #count { color: #666; font-size: .8rem; }
+    #error { color: #c62828; min-height: 1.2em; margin: .25rem 0 0; }
     ul { list-style: none; padding: 0; text-align: left; }
     li { background: #f9f9f9; border-left: 4px solid #4caf50; padding: .75rem 1rem; margin-bottom: .5rem; border-radius: 4px; }
   </style>
@@ -88,22 +80,71 @@ const page = `<!DOCTYPE html>
     <h1>Todo App</h1>
     <img src="/image" alt="Random picture">
     <p class="caption">DevOps with Kubernetes 2026</p>
-    <form onsubmit="return false">
+    <form id="form">
       <input id="todo" type="text" maxlength="140" placeholder="Enter a new todo (max 140 characters)" required>
       <button type="submit">Send</button>
     </form>
     <span id="count">0/140</span>
+    <p id="error" role="alert"></p>
     <h2>Todos</h2>
-    <ul>
-${todos.map((t) => `      <li>${escapeHtml(t)}</li>`).join('\n')}
-    </ul>
+    <ul id="list"></ul>
   </main>
   <script>
     var input = document.getElementById('todo');
     var count = document.getElementById('count');
+    var list = document.getElementById('list');
+    var form = document.getElementById('form');
+    var errorEl = document.getElementById('error');
+
+    function render(todos) {
+      list.textContent = '';
+      todos.forEach(function (t) {
+        var li = document.createElement('li');
+        li.textContent = t.text;
+        list.appendChild(li);
+      });
+    }
+
+    function load() {
+      fetch('/todos')
+        .then(function (r) {
+          if (!r.ok) throw new Error('bad status');
+          return r.json();
+        })
+        .then(render)
+        .catch(function () {
+          errorEl.textContent = 'Could not load todos';
+        });
+    }
+
     input.addEventListener('input', function () {
       count.textContent = input.value.length + '/140';
     });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorEl.textContent = '';
+      fetch('/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ todo: input.value }),
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (body) {
+            if (!r.ok) throw new Error(body.error || 'Could not save todo');
+          });
+        })
+        .then(function () {
+          input.value = '';
+          count.textContent = '0/140';
+          load();
+        })
+        .catch(function (err) {
+          errorEl.textContent = err.message;
+        });
+    });
+
+    load();
   </script>
 </body>
 </html>
@@ -150,4 +191,3 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, () => {
   console.log(`Server started in port ${port}`);
 });
-

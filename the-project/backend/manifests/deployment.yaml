@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend
+spec:
+  replicas: 1   # todos are kept in memory, so more replicas would each have their own list
+  selector:
+    matchLabels:
+      app: todo-backend
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    spec:
+      containers:
+        - name: todo-backend
+          image: todo-backend:1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "4001"
+          ports:
+            - containerPort: 4001
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 4001
