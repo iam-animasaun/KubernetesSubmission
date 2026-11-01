@@ -30,7 +30,9 @@
 
 [1.13](https://github.com/iam-animasaun/KubernetesSubmission/tree/1.13/the-project)
 
-## Chapter 3
+### Chapter 3
 
 [2.1](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.1)
+
+[2.2](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.2/the-project)
 
