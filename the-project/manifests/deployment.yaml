@@ -18,7 +18,7 @@ spec:
             claimName: todo-app-cache
       containers:
         - name: todo-app
-          image: todo-app:4.0
+          image: todo-app:4.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
