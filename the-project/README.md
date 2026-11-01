@@ -2,16 +2,10 @@
 
 ## Build and load into k3d, then deploy:
 
-    docker build -t todo-app:4.0 .
-    k3d image import todo-app:4.0 -c k3s-default
+    docker build -t todo-app:4.1 .
+    docker build -t todo-backend:1.0 ./backend
+    k3d image import todo-app:4.1 todo-backend:1.0 -c <your-cluster-name>
     kubectl apply -f manifests/deployment.yaml
 
-## Open the app through the Ingress (the host port mapped to the k3d load balancer's port 80).
-
-## Test the image cache surviving a crash:
-
-   `curl -X POST http://localhost:<port>/shutdown`
-    kubectl get pods        # RESTARTS goes up, the picture stays the same
-
-curl `http://localhost:8081`
+## The Ingress sends /todos to todo-backend and everything else to todo-app.
 
