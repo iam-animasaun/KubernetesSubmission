@@ -7,6 +7,6 @@ cd writer
 
 cd reader
   
-  `docker build -t log-reader:1.2 .`
+  `docker build -t log-reader:1.3 .`
   
-  `k3d image import log-reader:1.2 -c <cluster-name>`
+  `k3d image import log-reader:1.3 -c <cluster-name>`
