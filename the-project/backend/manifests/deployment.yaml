@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: todo-backend
+  namespace: project
 spec:
   replicas: 1   # todos are kept in memory, so more replicas would each have their own list
   selector:
