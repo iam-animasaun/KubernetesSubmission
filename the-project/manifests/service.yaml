@@ -9,4 +9,4 @@ spec:
     app: todo-app
   ports:
     - port: 2345
-      targetPort: 4000
+      targetPort: http
