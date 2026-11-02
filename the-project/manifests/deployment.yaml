@@ -21,21 +21,16 @@ spec:
         - name: todo-app
           image: todo-app:4.1
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "4000"
-            - name: CACHE_DIR
-              value: /data
-            - name: NODE_OPTIONS
-              value: "--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=5000"
-            - name: ENABLE_SHUTDOWN
-              value: "true"
+          envFrom:
+            - configMapRef:
+                name: todo-app-config
           ports:
-            - containerPort: 4000
+            - name: http
+              containerPort: 4000
           volumeMounts:
             - name: cache
               mountPath: /data
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 4000
+              port: http
