@@ -9,4 +9,4 @@ spec:
     app: todo-backend
   ports:
     - port: 2346
-      targetPort: 4001
+      targetPort: http
