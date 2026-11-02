@@ -43,7 +43,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-	message = os.environ.get("MESSAGE", "")
+        message = os.environ.get("MESSAGE", "")
         body = (
             f"file content: {read_info()}\n"
             f"env variable: MESSAGE={message}\n"
