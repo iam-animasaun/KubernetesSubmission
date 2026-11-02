@@ -2,5 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: log-output-cmap
+  namespace: exercises
 data:
-  variable: MESSAGE=hello world
+  information.txt: |
+    this text is from file
+  MESSAGE: "hello world"
