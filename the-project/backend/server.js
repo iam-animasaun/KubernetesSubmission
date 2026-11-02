@@ -1,7 +1,18 @@
 const http = require('http');
 
-const port = process.env.PORT || 3001;
-const MAX_LENGTH = 140;
+// --- Configuration (all from environment variables, nothing hard coded) ---
+
+function requiredInt(name) {
+  const value = Number(process.env[name]);
+  if (!Number.isInteger(value) || value <= 0) {
+    console.error(`Environment variable ${name} must be set to a positive integer`);
+    process.exit(1);
+  }
+  return value;
+}
+
+const port = requiredInt('PORT');
+const maxTodoLength = requiredInt('MAX_TODO_LENGTH');
 
 // Todos live in memory for now (a database comes later), so run a single replica.
 let nextId = 4;
@@ -58,8 +69,8 @@ const server = http.createServer(async (req, res) => {
     }
     const text = typeof body.todo === 'string' ? body.todo.trim() : '';
     if (!text) return send(res, 400, { error: 'Todo cannot be empty' });
-    if (text.length > MAX_LENGTH) {
-      return send(res, 400, { error: `Todo cannot be longer than ${MAX_LENGTH} characters` });
+    if (text.length > maxTodoLength) {
+      return send(res, 400, { error: `Todo cannot be longer than ${maxTodoLength} characters` });
     }
     const todo = { id: nextId++, text };
     todos.push(todo);
