@@ -16,6 +16,12 @@ spec:
       volumes:
         - name: shared-files
           emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: log-output-cmap
+            items:
+              - key: information.txt
+                path: information.txt
       containers:
         - name: log-writer
           image: log-writer:1.0
@@ -31,8 +37,16 @@ spec:
               value: "3000"
             - name: PINGPONG_URL
               value: "http://pingpong-svc:2345/pings"
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: log-output-cmap
+                  key: MESSAGE
           ports:
             - containerPort: 3000
           volumeMounts:
             - name: shared-files
               mountPath: /usr/src/app/files
+            - name: config-volume
+              mountPath: /usr/src/app/config
+
