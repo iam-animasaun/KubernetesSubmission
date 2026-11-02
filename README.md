@@ -40,3 +40,5 @@
 
 [2.4](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.4/the-project)
 
+[2.5](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.5/log-output)
+
