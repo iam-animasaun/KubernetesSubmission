@@ -2,11 +2,32 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const port = process.env.PORT || 3000;
-const cacheDir = process.env.CACHE_DIR || path.join(__dirname, 'cache');
+// --- Configuration (all from environment variables, nothing hard coded) ---
+
+function requiredString(name) {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`Environment variable ${name} must be set`);
+    process.exit(1);
+  }
+  return value;
+}
+
+function requiredInt(name) {
+  const value = Number(process.env[name]);
+  if (!Number.isInteger(value) || value <= 0) {
+    console.error(`Environment variable ${name} must be set to a positive integer`);
+    process.exit(1);
+  }
+  return value;
+}
+
+const port = requiredInt('PORT');
+const cacheDir = requiredString('CACHE_DIR');
+const imageUrl = requiredString('IMAGE_URL');
+const maxAgeMs = requiredInt('IMAGE_MAX_AGE_SECONDS') * 1000;
+const maxTodoLength = requiredInt('MAX_TODO_LENGTH');
 const imagePath = path.join(cacheDir, 'image.jpg');
-const IMAGE_URL = 'https://picsum.photos/1200';
-const MAX_AGE_MS = 10 * 60 * 1000;
 
 fs.mkdirSync(cacheDir, { recursive: true });
 
@@ -25,7 +46,7 @@ let fetching = null;
 function fetchNewImage() {
   if (fetching) return fetching;
   fetching = (async () => {
-    const res = await fetch(IMAGE_URL);
+    const res = await fetch(imageUrl);
     if (!res.ok) throw new Error(`picsum returned ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     const tmp = imagePath + '.tmp';
@@ -46,7 +67,7 @@ async function getImage() {
 
   if (!stat) {
     await fetchNewImage(); // nothing cached yet, so we have to wait
-  } else if (Date.now() - stat.mtimeMs > MAX_AGE_MS) {
+  } else if (Date.now() - stat.mtimeMs > maxAgeMs) {
     // Too old: serve the old one this time, refresh for the next request.
     fetchNewImage().catch((err) => console.error(describe(err)));
   }
@@ -81,10 +102,10 @@ const page = `<!DOCTYPE html>
     <img src="/image" alt="Random picture">
     <p class="caption">DevOps with Kubernetes 2026</p>
     <form id="form">
-      <input id="todo" type="text" maxlength="140" placeholder="Enter a new todo (max 140 characters)" required>
+      <input id="todo" type="text" maxlength="${maxTodoLength}" placeholder="Enter a new todo (max ${maxTodoLength} characters)" required>
       <button type="submit">Send</button>
     </form>
-    <span id="count">0/140</span>
+    <span id="count">0/${maxTodoLength}</span>
     <p id="error" role="alert"></p>
     <h2>Todos</h2>
     <ul id="list"></ul>
@@ -118,7 +139,7 @@ const page = `<!DOCTYPE html>
     }
 
     input.addEventListener('input', function () {
-      count.textContent = input.value.length + '/140';
+      count.textContent = input.value.length + '/${maxTodoLength}';
     });
 
     form.addEventListener('submit', function (e) {
@@ -136,7 +157,7 @@ const page = `<!DOCTYPE html>
         })
         .then(function () {
           input.value = '';
-          count.textContent = '0/140';
+          count.textContent = '0/${maxTodoLength}';
           load();
         })
         .catch(function (err) {
