@@ -17,11 +17,12 @@ spec:
         - name: todo-backend
           image: todo-backend:1.0
           imagePullPolicy: IfNotPresent
-          env:
-            - name: PORT
-              value: "4001"
+          envFrom:
+            - configMapRef:
+                name: todo-backend-config
           ports:
-            - containerPort: 4001
+            - name: http
+              containerPort: 4001
           readinessProbe:
             httpGet:
               path: /healthz
