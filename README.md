@@ -44,3 +44,5 @@
 
 [2.6](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.6/the-project)
 
+[2.7](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.7/ping-pong)
+
