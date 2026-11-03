@@ -1,0 +1,3 @@
+# kubernetes secrets
+
+ping-pong/manifests/*-secret.yaml
