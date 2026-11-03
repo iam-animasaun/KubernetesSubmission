@@ -1,3 +1,5 @@
 # kubernetes secrets
 
 ping-pong/manifests/*-secret.yaml
+the-project/backend/manifests/*-secret.yaml
+
