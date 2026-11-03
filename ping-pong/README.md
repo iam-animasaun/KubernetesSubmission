@@ -1,7 +1,11 @@
 # Build and Deploy
 
-docker build -t pingpong:1.2 .
+npm init -y
 
-k3d image import pingpong:1.2 -c k3s-default
+npm install pg
+
+docker build -t pingpong:1.3 .
+
+k3d image import pingpong:1.3 -c k3s-default
 
 kubectl apply -f `manifests/`
