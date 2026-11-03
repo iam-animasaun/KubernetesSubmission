@@ -2,9 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: todo-backend
-  namespace: project
 spec:
-  replicas: 1   # todos are kept in memory, so more replicas would each have their own list
+  replicas: 1
   selector:
     matchLabels:
       app: todo-backend
@@ -15,15 +14,31 @@ spec:
     spec:
       containers:
         - name: todo-backend
-          image: todo-backend:1.1
+          image: todo-backend:1.2
           imagePullPolicy: IfNotPresent
           envFrom:
             - configMapRef:
                 name: todo-backend-config
+          env:
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-db-config
+                  key: POSTGRES_DB
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-credentials
+                  key: password
           ports:
             - name: http
-              containerPort: 4001
+              containerPort: 4001   # must match PORT in todo-backend-config
           readinessProbe:
             httpGet:
-              path: /healthz
-              port: 4001
+              path: /healthz        # answers 200 only when the database is reachable
+              port: http
