@@ -13,11 +13,11 @@ If the cluster can't pull the database image, load it the same way:
     docker pull postgres:17-alpine
     k3d image import postgres:17-alpine -c <your-cluster-name>
 
-Set a real password in backend/manifests/pg-secret.yaml, then:
+Set a real password in `backend/manifests/pg-secret.yaml`, then:
 
     kubectl apply -f backend/manifests/
 
-Edit the cronJob schedule job/manifests/cronJob.yaml, then:
+Edit the cronJob schedule `job/manifests/cronJob.yaml`, then:
 
     kubectl apply -f job/manifests/
 
