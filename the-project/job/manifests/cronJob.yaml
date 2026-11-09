@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: todo-cron
+spec:
+  schedule: "0 * * * *"          # at minute 0 of every hour
+  concurrencyPolicy: Forbid      # never run two at once
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2            # retry a failed run up to 2 times
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: todo-cron
+              image: todo-cron:1.0
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: todo-cron-config
