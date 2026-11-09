@@ -2,6 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: todo-cron
+  namespace: project
 spec:
   schedule: "0 * * * *"          # at minute 0 of every hour
   concurrencyPolicy: Forbid      # never run two at once
