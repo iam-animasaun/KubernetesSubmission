@@ -30,3 +30,16 @@ metadata:
   namespace: project
 data:
   POSTGRES_DB: todos
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-cron-config
+  namespace: project
+data:
+  BACKEND_URL: http://todo-backend-svc:2346/todos   # must match the backend Service name and port
+  WIKI_RANDOM_URL: https://en.wikipedia.org/wiki/Special:Random
+  USER_AGENT: "todo-cron/0.1 (Kubernetes learning project)"
+  MAX_TODO_LENGTH: "140"
+  MAX_ATTEMPTS: "5"
+  NODE_OPTIONS: "--dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=5000"
