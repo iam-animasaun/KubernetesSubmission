@@ -4,7 +4,8 @@
 
     docker build -t todo-app:4.2 .
     docker build -t todo-backend:1.2 ./backend
-    k3d image import todo-app:4.2 todo-backend:1.2 -c <your-cluster-name>
+    docker build -t todo-cron:1.0 ./job
+    k3d image import todo-app:4.2 todo-backend:1.2 todo-cron:1.0 -c <your-cluster-name>
     kubectl apply -f manifests/
 
 If the cluster can't pull the database image, load it the same way:
@@ -15,6 +16,10 @@ If the cluster can't pull the database image, load it the same way:
 Set a real password in backend/manifests/pg-secret.yaml, then:
 
     kubectl apply -f backend/manifests/
+
+Edit the cronJob schedule job/manifests/cronJob.yaml, then:
+
+    kubectl apply -f job/manifests/
 
 - The Ingress sends /todos to todo-backend and everything else to todo-app.
 - Todos are stored in Postgres, which runs as a StatefulSet with one replica and its own persistent volume.
