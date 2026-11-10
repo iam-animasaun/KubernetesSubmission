@@ -1,29 +1,35 @@
 const http = require('http');
 const { Pool } = require('pg');
-
+ 
+// --- Logging: one JSON object per line, easy to search in Grafana/Loki ---
+ 
+function log(level, msg, fields = {}) {
+  console.log(JSON.stringify({ time: new Date().toISOString(), level, msg, ...fields }));
+}
+ 
 // --- Configuration (all from environment variables, nothing hard coded) ---
-
+ 
 function requiredString(name) {
   const value = process.env[name];
   if (!value) {
-    console.error(`Environment variable ${name} must be set`);
+    log('error', `Environment variable ${name} must be set`);
     process.exit(1);
   }
   return value;
 }
-
+ 
 function requiredInt(name) {
   const value = Number(process.env[name]);
   if (!Number.isInteger(value) || value <= 0) {
-    console.error(`Environment variable ${name} must be set to a positive integer`);
+    log('error', `Environment variable ${name} must be set to a positive integer`);
     process.exit(1);
   }
   return value;
 }
-
+ 
 const port = requiredInt('PORT');
 const maxTodoLength = requiredInt('MAX_TODO_LENGTH');
-
+ 
 const pool = new Pool({
   host: requiredString('DB_HOST'),
   port: requiredInt('DB_PORT'),
@@ -32,13 +38,13 @@ const pool = new Pool({
   password: requiredString('DB_PASSWORD'),
 });
 // An idle connection dropping (for example when the database restarts) must not crash the app.
-pool.on('error', (err) => console.error(`Database pool error: ${err.message}`));
-
+pool.on('error', (err) => log('error', 'database pool error', { error: err.message }));
+ 
 // --- Database --------------------------------------------------------------
-
+ 
 let dbReady = false;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+ 
 // The database pod may start after this one, so keep trying until it answers.
 async function initDb() {
   for (;;) {
@@ -50,22 +56,22 @@ async function initDb() {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )`);
       dbReady = true;
-      console.log('Connected to database');
+      log('info', 'connected to database');
       return;
     } catch (err) {
-      console.error(`Database not ready (${err.code || err.message}), retrying`);
+      log('warn', 'database not ready, retrying', { error: err.code || err.message });
       await sleep(2000);
     }
   }
 }
-
+ 
 // --- HTTP ------------------------------------------------------------------
-
+ 
 function send(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(body));
 }
-
+ 
 function readJson(req) {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -86,10 +92,22 @@ function readJson(req) {
     req.on('error', reject);
   });
 }
-
+ 
 const server = http.createServer(async (req, res) => {
   const url = req.url.split('?')[0];
-
+  const started = process.hrtime.bigint();
+ 
+  // Kubernetes probes /healthz every few seconds, so it is left out to keep the logs readable.
+  res.on('finish', () => {
+    if (url === '/healthz') return;
+    log('info', 'request', {
+      method: req.method,
+      path: url,
+      status: res.statusCode,
+      durationMs: Number((process.hrtime.bigint() - started) / 1000000n),
+    });
+  });
+ 
   try {
     // Ready only when the database answers, so Kubernetes holds traffic until then.
     if (req.method === 'GET' && url === '/healthz') {
@@ -97,39 +115,49 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
       return res.end('ok');
     }
-
+ 
     if (url === '/todos' && !dbReady) {
       return send(res, 503, { error: 'Database not ready' });
     }
-
+ 
     if (req.method === 'GET' && url === '/todos') {
       const { rows } = await pool.query('SELECT id, text FROM todos ORDER BY id');
       return send(res, 200, rows);
     }
-
+ 
     if (req.method === 'POST' && url === '/todos') {
       let body;
       try {
         body = await readJson(req);
       } catch {
+        log('warn', 'todo rejected', { reason: 'body is not valid JSON' });
         return send(res, 400, { error: 'Request body must be JSON like {"todo": "text"}' });
       }
       const text = typeof body.todo === 'string' ? body.todo.trim() : '';
-      if (!text) return send(res, 400, { error: 'Todo cannot be empty' });
+      if (!text) {
+        log('warn', 'todo rejected', { reason: 'empty' });
+        return send(res, 400, { error: 'Todo cannot be empty' });
+      }
       if (text.length > maxTodoLength) {
+        log('warn', 'todo rejected', {
+          reason: 'too long',
+          length: text.length,
+          limit: maxTodoLength,
+          todo: text,
+        });
         return send(res, 400, { error: `Todo cannot be longer than ${maxTodoLength} characters` });
       }
       const { rows } = await pool.query(
         'INSERT INTO todos (text) VALUES ($1) RETURNING id, text',
         [text]
       );
-      console.log(`Added todo ${rows[0].id}`);
+      log('info', 'todo created', { id: rows[0].id, length: text.length, todo: text });
       return send(res, 201, rows[0]);
     }
-
+ 
     send(res, 404, { error: 'Not found' });
   } catch (err) {
-    console.error(`Request failed: ${err.code || err.message}`);
+    log('error', 'request failed', { path: url, error: err.code || err.message });
     if (url === '/healthz') {
       res.writeHead(503, { 'Content-Type': 'text/plain' });
       return res.end('database unavailable');
@@ -137,8 +165,8 @@ const server = http.createServer(async (req, res) => {
     send(res, 500, { error: 'Something went wrong' });
   }
 });
-
+ 
 server.listen(port, () => {
-  console.log(`todo-backend started in port ${port}`);
+  log('info', 'todo-backend started', { port, maxTodoLength });
   initDb();
 });
