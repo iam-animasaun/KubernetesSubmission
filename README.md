@@ -50,3 +50,5 @@
 
 [2.9](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.9/the-project)
 
+[2.10](https://github.com/iam-animasaun/KubernetesSubmission/tree/2.10/the-project)
+
