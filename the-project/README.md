@@ -1,11 +1,11 @@
-# The Project
+# The Project (todo app + todo-backend + Postgres + hourly CronJob)
 
 ## Build and load into k3d, then deploy:
 
     docker build -t todo-app:4.2 .
-    docker build -t todo-backend:1.2 ./backend
+    docker build -t todo-backend:1.3 ./backend
     docker build -t todo-cron:1.0 ./job
-    k3d image import todo-app:4.2 todo-backend:1.2 todo-cron:1.0 -c <your-cluster-name>
+    k3d image import todo-app:4.2 todo-backend:1.3 todo-cron:1.0 -c <your-cluster-name>
     kubectl apply -f manifests/
 
 If the cluster can't pull the database image, load it the same way:
